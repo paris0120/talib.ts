@@ -421,4 +421,46 @@ export class TALib {
 
 
 
+
+    /**
+     * Highest value over a specified period
+     * @param value
+     * @param period
+     */
+    public static movingMax(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+        if(value==undefined) throw Error("Value is missing.");
+        return new Map([["movingMax", new Series(value).movingMax(period).getValue()]]);
+    }
+    /**
+     * Index of highest value over a specified period
+     * @param value
+     * @param period
+     */
+    public static movingMaxIndex(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+        if(value==undefined) throw Error("Value is missing.");
+        return new Map([["movingMaxIndex", new Series(value).movingMaxIndex(period).getValue()]]);
+    }
+
+
+    /**
+     * Lowest value over a specified period
+     * @param value
+     * @param period
+     */
+    public static movingMin(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+        if(value==undefined) throw Error("Value is missing.");
+        return new Map([["movingMin", new Series(value).movingMin(period).getValue()]]);
+    }
+
+
+    /**
+     * Index of lowest value over a specified period
+     * @param value
+     * @param period
+     */
+    public static movingMinIndex(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+        if(value==undefined) throw Error("Value is missing.");
+        return new Map([["movingMinIndex", new Series(value).movingMinIndex(period).getValue()]]);
+    }
+
 }
