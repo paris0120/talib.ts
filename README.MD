@@ -5,10 +5,10 @@ This library is a replication of TA-Lib with Typescript. This library will inclu
 
 ### Install
 
-npm install talib.ts -S
+npm install talib.ts@latest --S
 
 ### Import
-import { TALib } from 'talib.ts';
+import {TALib} from "talib.ts";
 
 ### Input
 The input columns must be an array of numbers or null. All the time frame with null input values will be skipped. 
@@ -49,9 +49,9 @@ ADXR: Average Directional Movement Index Rating
 
 APO: Absolute Price Oscillator
 
-AROON               Aroon
+AROON: Aroon
 
-AROONOSC            Aroon Oscillator
+AROONOSC: Aroon Oscillator
 
 ATR*: Average True Range
 
@@ -61,9 +61,9 @@ BBANDS: Bollinger Bands
 
 BETA                Beta
 
-BOP                 Balance Of Power
+BOP: Balance Of Power
 
-CCI                 Commodity Channel Index
+CCI: Commodity Channel Index
 
 CDL2CROWS           Two Crows
 

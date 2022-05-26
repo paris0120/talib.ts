@@ -1,14 +1,12 @@
-import {Series} from "numbers.ts/lib";
+import {Series} from "numbers.ts";
 
 export class TALib {
-    public static sma(value: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-        let series = new Series(value);
-        return new Map([["sma", series.simpleMovingAverage(period).getValue()]]);
+    public static sma(value: (number | null)[] | undefined, period: number): {sma: Series} {
+        return {sma: new Series(value).simpleMovingAverage(period)};
     }
 
-    public static ema(value: (number | null)[] | undefined, period: number, smoothing: number): Map<string, (number | null)[]> {
-        let series = new Series(value);
-        return new Map([["sma", series.exponentialMovingAverage(period, smoothing).getValue()]]);
+    public static ema(value: (number | null)[] | undefined, period: number, smoothing: number): {ema: Series} {
+        return {ema: new Series(value).simpleMovingAverage(period)};
     }
 
     /**
@@ -16,69 +14,57 @@ export class TALib {
      * @param value
      * @param period
      */
-    public static mma(value: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-        let series = new Series(value);
-        return new Map([["sma", series.modifiedMovingAverage(period).getValue()]]);
+    public static mma(value: (number | null)[] | undefined, period: number): {mma: Series} {
+        return {mma: new Series(value).simpleMovingAverage(period)};
     }
 
 
-    public static wsma(value: (number | null)[] | undefined, weight: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-        let series = new Series(value);
-        let seriesWeight = new Series(weight);
-        return new Map([["sma", series.weightedSimpleMovingAverage(seriesWeight, period).getValue()]]);
+    public static wsma(value: (number | null)[] | undefined, weight: (number | null)[] | undefined, period: number):{mma: Series} {
+        return {mma: new Series(value).weightedSimpleMovingAverage(new Series(weight), period)};
     }
 
-    public static wema(value: (number | null)[] | undefined, weight: (number | null)[] | undefined, period: number, smoothing: number): Map<string, (number | null)[]> {
-        let series = new Series(value);
-        let seriesWeight = new Series(weight);
-        return new Map([["sma", series.weightedExponentialMovingAverage(seriesWeight, period, smoothing).getValue()]]);
+    public static wema(value: (number | null)[] | undefined, weight: (number | null)[] | undefined, period: number, smoothing: number):{wema: Series} {
+        return {wema: new Series(value).weightedExponentialMovingAverage(new Series(weight), period, smoothing)};
     }
 
-
-
-    public static distance(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number): Map<string, (number | null)[]> {
-        let series = new Series(value1);
-        if(typeof value2 == 'number') return new Map([["distance", series.distance(value2).getValue()]]);
-        else return new Map([["distance", series.distance(new Series(value2)).getValue()]]);
+    public static distance(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number):{distance: Series} {
+        if(typeof value2 == 'number') return {distance: new Series(value1).distance(value2)};
+        else return {distance: new Series(value1).distance(new Series(value2))};
     }
 
-
-    public static subtract(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number): Map<string, (number | null)[]> {
-        let series = new Series(value1);
-        if(typeof value2 == 'number') return new Map([["subtract", series.subtract(value2).getValue()]]);
-        else return new Map([["subtract", series.subtract(new Series(value2)).getValue()]]);
-    }
-
-    public static add(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number): Map<string, (number | null)[]> {
-        let series = new Series(value1);
-        if(typeof value2 == 'number') return new Map([["add", series.add(value2).getValue()]]);
-        else return new Map([["add", series.add(new Series(value2)).getValue()]]);
+    public static subtract(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number):{subtract: Series} {
+        if(typeof value2 == 'number') return {subtract: new Series(value1).subtract(value2)};
+        else return {subtract: new Series(value1).subtract(new Series(value2))};
     }
 
 
-    public static modulo(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number): Map<string, (number | null)[]> {
-        let series = new Series(value1);
-        if(typeof value2 == 'number') return new Map([["modulo", series.modulo(value2).getValue()]]);
-        else return new Map([["modulo", series.modulo(new Series(value2)).getValue()]]);
-    }
-
-    public static multiply(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number): Map<string, (number | null)[]> {
-        let series = new Series(value1);
-        if(typeof value2 == 'number') return new Map([["multiply", series.multiply(value2).getValue()]]);
-        else return new Map([["multiply", series.multiply(new Series(value2)).getValue()]]);
+    public static add(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number):{add: Series} {
+        if(typeof value2 == 'number') return {add: new Series(value1).add(value2)};
+        else return {add: new Series(value1).add(new Series(value2))};
     }
 
 
-    public static divide(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number): Map<string, (number | null)[]> {
-        let series = new Series(value1);
-        if(typeof value2 == 'number') return new Map([["divide", series.divide(value2).getValue()]]);
-        else return new Map([["divide", series.divide(new Series(value2)).getValue()]]);
+    public static modulo(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number):{modulo: Series} {
+        if(typeof value2 == 'number') return {modulo: new Series(value1).modulo(value2)};
+        else return {modulo: new Series(value1).modulo(new Series(value2))};
     }
 
-    public static stddev(value: (number | null)[] | undefined, average: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-        let series = new Series(value);
-        let seriesAverage = new Series(average);
-        return new Map([["stddev", series.stdDev(seriesAverage, period).getValue()]]);
+
+    public static multiply(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number):{multiply: Series} {
+        if(typeof value2 == 'number') return {multiply: new Series(value1).multiply(value2)};
+        else return {multiply: new Series(value1).multiply(new Series(value2))};
+    }
+
+
+
+    public static divide(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number):{divide: Series} {
+        if(typeof value2 == 'number') return {divide: new Series(value1).divide(value2)};
+        else return {divide: new Series(value1).divide(new Series(value2))};
+    }
+
+    public static stdDev(value: (number | null)[] | undefined, average: (number | null)[] | undefined | number, period: number): {stdDev: Series}  {
+        if(typeof average == 'number') return {stdDev: new Series(value).stdDev(average, period)};
+        else return {stdDev: new Series(value).stdDev(new Series(average), period)};
     }
 
 
@@ -88,15 +74,13 @@ export class TALib {
      * @param average
      * @param period
      */
-    public static var(value: (number | null)[] | undefined, average: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-        let series = new Series(value);
-        let seriesAverage = new Series(average);
-        return new Map([["var", series.variance(seriesAverage, period).getValue()]]);
+    public static var(value: (number | null)[] | undefined, average: (number | null)[] | undefined, period: number): {var: Series}  {
+        if(typeof average == 'number') return {var: new Series(value).variance(average, period)};
+        else return {var: new Series(value).variance(new Series(average), period)};
     }
 
-    public static macdDefault = new Map([["fastPeriod", 12],["slowPeriod", 26],["signalPeriod", 9]]);
-
-    public static macd(close: (number | null)[] | undefined, fastPeriod: number, slowPeriod: number, signalPeriod: number): Map<string, (number | null)[]> {
+    public static macdDefault = {fastPeriod: 12, slowPeriod: 26, signalPeriod: 9};
+    public static macd(close: (number | null)[] | undefined, fastPeriod: number, slowPeriod: number, signalPeriod: number): { macd: Series, macdSignal: Series, macdHist: Series } {
         let series = new Series(close);
         if (fastPeriod <= 0) throw Error("Fast period must be a positive integer.");
         if (slowPeriod <= 0) throw Error("Slow period must be a positive integer.");
@@ -108,16 +92,14 @@ export class TALib {
         let macd = fast.subtract(slow);
         let signal = macd.exponentialMovingAverage(signalPeriod, 2);
         let hist = macd.subtract(signal);
-
-        // @ts-ignore
-        return new Map([
-            ["macd", macd.getValue()],
-            ["macd_signal", signal.getValue()],
-            ["macd_hist", hist.getValue()],
-        ]);
+        return {
+            macd: macd,
+            macdSignal: signal,
+            macdHist: hist
+        }
     }
 
-    public avgPrice(open: (number | null)[] | undefined, high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined) {
+    public avgPrice(open: (number | null)[] | undefined, high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined): {avgPrice: Series} {
         if (open == undefined) throw Error("Missing open.");
         if (high == undefined) throw Error("Missing high.");
         if (low == undefined) throw Error("Missing low.");
@@ -125,27 +107,69 @@ export class TALib {
         if (open.length != high.length) throw Error("Open and high must have the same length.");
         if (open.length != low.length) throw Error("Open and low must have the same length.");
         if (open.length != close.length) throw Error("Open and close must have the same length.");
-        return new Map([["avgPrice", new Series(open).add(new Series(high)).add(new Series(low)).add(new Series(close)).divide(4).getValue()]]);
+        return {avgPrice: new Series(open).add(new Series(high)).add(new Series(low)).add(new Series(close)).divide(4)};
+    }
 
+    /**
+     * Balance Of Power
+     * @param open
+     * @param high
+     * @param low
+     * @param close
+     */
+    public static bop(open: (number | null)[] | undefined,high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {bop: Series} {
+        if (open == undefined) throw Error("Missing open.");
+        if (high == undefined) throw Error("Missing high.");
+        if (low == undefined) throw Error("Missing low.");
+        if (close == undefined) throw Error("Missing close.");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("Fast period must be a positive integer.");
+        return {bop: new Series(close).subtract(new Series(open)).divide(new Series(high).subtract(new Series(low))).simpleMovingAverage(period)}
+    }
+
+    public static bopDefault = {
+        period: 14
     }
 
 
-    public static bbandsDefault = new Map([["period", 5],["bandWidth", 2]]);
-    public static bbands(close: (number | null)[] | undefined, period: number, bandWidth: number): Map<string, (number | null)[]> {
+    /**
+     * Commodity Channel Index
+     * @param high
+     * @param low
+     * @param close
+     * @param period
+     */
+
+    public static cci(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {cci: Series} {
+        if (high == undefined) throw Error("Missing high.");
+        if (low == undefined) throw Error("Missing low.");
+        if (close == undefined) throw Error("Missing close.");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("Fast period must be a positive integer.");
+        let tp = this.typPrice(high, low, close).typPrice;
+        let ma = tp.simpleMovingAverage(period);
+        return {cci: tp.subtract(ma).divide(0.015).divide(tp.meanDev(ma, period))}
+    }
+    public static cciDefault = {
+        period: 14
+    }
+
+
+    public static bbandsDefault = {
+        period: 5,
+        bandWidth: 2,
+    }
+    public static bbands(close: (number | null)[] | undefined, period: number, bandWidth: number): { bbandsUpper: Series; bbandsSma: Series; bbandsLower: Series } {
         if (close == undefined) throw Error("Missing close.");
         if (period <= 0) throw Error("Fast period must be a positive integer.");
         let c = new Series(close);
         let sma = c.simpleMovingAverage(period);
         let dev = c.stdDev(sma, period).multiply(bandWidth);
-        let upper = c.add(dev);
-        let lower = c.subtract(dev);
-
-        // @ts-ignore
-        return new Map([
-            ["bbands_upper", upper.getValue()],
-            ["bbands_sma", sma.getValue()],
-            ["bbands_lower", lower.getValue()],
-        ]);
+        let upper = sma.add(dev);
+        let lower = sma.subtract(dev);
+        return {
+            bbandsUpper: upper,
+            bbandsSma: sma,
+            bbandsLower: lower,
+        }
     }
 
 
@@ -157,7 +181,7 @@ export class TALib {
      * @param close
      * @constructor
      */
-    public TypPrice(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined) {
+    public static typPrice(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined): {typPrice: Series} {
         if (high == undefined) throw Error("Missing high.");
         if (low == undefined) throw Error("Missing low.");
         if (close == undefined) throw Error("Missing close.");
@@ -173,7 +197,7 @@ export class TALib {
                 avgPrice.push((high[i] + low[i] + close[i])/3);
             }
         }
-        return new Map([["TypPrice", new Series(high).add(new Series(low)).add(new Series(close)).divide(3).getValue()]]);
+        return {typPrice: new Series(high).add(new Series(low)).add(new Series(close)).divide(3)};
 
     }
 
@@ -184,14 +208,13 @@ export class TALib {
      * @param low
      * @param close
      */
-    public wClPrice(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined) {
+    public static wClPrice(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined): {wClPrice: Series} {
         if (high == undefined) throw Error("Missing high.");
         if (low == undefined) throw Error("Missing low.");
         if (close == undefined) throw Error("Missing close.");
         if (high.length != low.length) throw Error("High and low must have the same length.");
         if (high.length != close.length) throw Error("High and close must have the same length.");
-        return new Map([["wClPrice", new Series(high).add(new Series(low)).add(new Series(close).multiply(2)).divide(4).getValue()]]);
-
+        return { wClPrice: new Series(high).add(new Series(low)).add(new Series(close).multiply(2)).divide(4)};
     }
 
 
@@ -202,11 +225,8 @@ export class TALib {
      * @param volume
      * @param period
      */
-    public static vwap(close: (number | null)[] | undefined, volume: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-
-        return new Map([
-            ["vwap", new Series(close).weightedSimpleMovingAverage(new Series(volume), period).getValue()]
-        ]);
+    public static vwap(close: (number | null)[] | undefined, volume: (number | null)[] | undefined, period: number): {vwap: Series} {
+        return {vwap: new Series(close).weightedSimpleMovingAverage(new Series(volume), period)};
     }
 
 
@@ -217,11 +237,8 @@ export class TALib {
      * @param volume
      * @param period
      */
-    public static vweap(close: (number | null)[] | undefined, volume: (number | null)[] | undefined, period: number, smoothing: number): Map<string, (number | null)[]> {
-
-        return new Map([
-            ["vweap", new Series(close).weightedExponentialMovingAverage(new Series(volume), period, smoothing).getValue()]
-        ]);
+    public static vweap(close: (number | null)[] | undefined, volume: (number | null)[] | undefined, period: number, smoothing: number): {vweap: Series} {
+        return {vweap: new Series(close).weightedExponentialMovingAverage(new Series(volume), period, smoothing)};
     }
 
 
@@ -232,7 +249,7 @@ export class TALib {
      * @param low
      * @param close
      */
-    public static tRange(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined): Map<string, (number | null)[]> {
+    public static tRange(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined): {tRange: Series} {
         if (high == undefined) throw Error("Missing high value.");
         if (low == undefined) throw Error("Missing low value.");
         if (close == undefined) throw Error("Missing close average.");
@@ -242,7 +259,7 @@ export class TALib {
         let c = new Series(close).lag(1);
         let h = new Series(high);
         let l = new Series(low);
-        return new Map([["tRange", h.subtract(l).max(h.distance(c)).max(l.distance(c)).getValue()]]);
+        return{tRange: h.subtract(l).max(h.distance(c)).max(l.distance(c))};
     }
 
 
@@ -255,13 +272,10 @@ export class TALib {
      * @param close
      * @param period
      */
-    public static atr(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-        let tr = new Series(this.tRange(high, low, close).get('tRange'));
-        // @ts-ignore
-        return new Map([["atr", tr.simpleMovingAverage(period).getValue()]]);
+    public static atr(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {atr: Series} {
+        return {atr: this.tRange(high, low, close).tRange.simpleMovingAverage(period)};
     }
-    public static atrDefault = new Map([["period", 14]]);
-
+    public static atrDefault = {"period": 14};
 
     /**
      * Chaikin A/D Line
@@ -270,7 +284,7 @@ export class TALib {
      * @param close
      * @param volume
      */
-    public static ad(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, volume: (number | null)[] | undefined): Map<string, (number | null)[]> {
+    public static ad(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, volume: (number | null)[] | undefined): {ad: Series} {
         if (high == undefined) throw Error("Missing high value.");
         if (low == undefined) throw Error("Missing low value.");
         if (close == undefined) throw Error("Missing close average.");
@@ -283,7 +297,7 @@ export class TALib {
         let l = new Series(low);
         let c = new Series(close);
         let v = new Series(volume);
-        return new Map([["ad", v.multiply(c.subtract(l).subtract(h.add(c))).divide(h.subtract(l)).carry().getValue()]]);
+        return {ad: v.multiply(c.subtract(l).subtract(h.add(c))).divide(h.subtract(l)).carry()};
     }
 
 
@@ -298,12 +312,11 @@ export class TALib {
      * @param fastPeriod
      * @param slowPeriod
      */
-    public static adOsc(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, volume: (number | null)[] | undefined, fastPeriod: number, slowPeriod: number): Map<string, (number | null)[]> {
-        let ad = new Series(this.ad(high, low, close, volume).get("ad"));
-        // @ts-ignore
-        return new Map([["adOsc", ad.exponentialMovingAverage(fastPeriod).subtract(ad.exponentialMovingAverage(slowPeriod)).getValue()]]);
+    public static adOsc(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, volume: (number | null)[] | undefined, fastPeriod: number, slowPeriod: number): {adOsc: Series} {
+        let ad = this.ad(high, low, close, volume).ad;
+        return {adOsc: ad.exponentialMovingAverage(fastPeriod, 2).subtract(ad.exponentialMovingAverage(slowPeriod, 2))}
     }
-    public static adOscDefault = new Map([["fastPeriod", 3], ["slowPeriod", 10]]);
+    public static adOscDefault = {fastPeriod: 3, slowPeriod: 10};
 
 
     /**
@@ -313,10 +326,10 @@ export class TALib {
      * @param close
      * @param period
      */
-    public static adx(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
-        return new Map([["adx", new Series(this.dx(high, low, close, period).get('dx')).modifiedMovingAverage(period).getValue()]]);
+    public static adx(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {adx: Series} {
+        return{adx: this.dx(high, low, close, period).dx.modifiedMovingAverage(period)};
     }
-    public static adxDefault = new Map([["period", 14]]);
+    public static adxDefault = {period: 14};
 
 
 
@@ -329,14 +342,12 @@ export class TALib {
      * @param lagPeriod
      * @param adxPeriod: period used to calulate adx
      */
-    public static adxr(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, lagPeriod: number, adxPeriod: number): Map<string, (number | null)[]> {
+    public static adxr(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, lagPeriod: number, adxPeriod: number): {adxr: Series} {
         if(lagPeriod<0) throw Error("Period must be greater than 0.")
-        let adx = new Series(this.adx(high, low, close, adxPeriod).get('adx'));
-        return new Map([["adxr", adx.add(adx.lag(lagPeriod)).divide(2).getValue()]]);
+        let adx = this.adx(high, low, close, adxPeriod);
+        return {adxr: adx.adx.add(adx.adx.lag(lagPeriod)).divide(2)};
     }
-    public static adxrDefault = new Map([["period", 10],["adxPeriod", 14]]);
-
-
+    public static adxrDefault = {lagPeriod: 10, adxPeriod: 14};
 
     /**
      * Absolute Price Oscillator
@@ -344,24 +355,44 @@ export class TALib {
      * @param fastPeriod
      * @param slowPeriod
      */
-    public static apo(close: (number | null)[] | undefined, fastPeriod: number, slowPeriod: number): Map<string, (number | null)[]> {
+    public static apo(close: (number | null)[] | undefined, fastPeriod: number, slowPeriod: number): { apo: Series } {
         if (close == undefined) throw Error("Missing close.");
         if (fastPeriod <= 0) throw Error("Fast period must be a positive integer.");
         if (slowPeriod <= 0) throw Error("Slow period must be a positive integer.");
         if (slowPeriod <= fastPeriod) throw Error("Slow period must be longer than fast period.");
         let c = new Series(close);
-        return new Map([["apo", c.exponentialMovingAverage(slowPeriod, 2).subtract(c.exponentialMovingAverage(fastPeriod, 2)).getValue()]]);
+        return {apo: c.exponentialMovingAverage(slowPeriod, 2).subtract(c.exponentialMovingAverage(fastPeriod, 2))};
     }
 
-    public static apoDefault = new Map([["fastPeriod", 12],["slowPeriod", 26],["signalPeriod", 9]]);
+    public static apoDefault = {fastPeriod: 12, slowPeriod: 26, signalPeriod: 9};
 
+
+    public static aroon(high: (number | null)[] | undefined, low: (number | null)[] | undefined, period: number): {'aroonUp':Series, 'aroonDown':Series} {
+        if (high == undefined) throw Error("Missing high.");
+        if (low == undefined) throw Error("Missing low.");
+        if (period <= 0 || !Number.isInteger(period)) throw Error("Period must be a positive integer.");
+
+        return {
+            aroonUp: new Series(high).movingMaxDistance(period).divide(period).subtract(1).absolute(),
+            aroonDown: new Series(low).movingMinDistance(period).divide(period).subtract(1).absolute()
+        };
+    }
+    public static aroonDefault = {period: 25};
+
+
+    public static aroonOsc (high: (number | null)[] | undefined, low: (number | null)[] | undefined, period: number): {'aroonOsc':Series} {
+        let aroon = this.aroon(high, low, period);
+        return {aroonOsc: aroon.aroonUp.subtract(aroon.aroonDown)}
+    }
+
+    public static aroonOscDefault = {period: 25};
 
     /**
      * Directional Movement
      * @param high
      * @param low
      */
-    public static dm(high: (number | null)[] | undefined, low: (number | null)[] | undefined): Map<string, (number | null)[]> {
+    public static dm(high: (number | null)[] | undefined, low: (number | null)[] | undefined): {pdm: Series, ndm: Series} {
         if (high == undefined) throw Error("Missing high value.");
         if (low == undefined) throw Error("Missing low value.");
         if (high.length != low.length) throw Error("High and low must have the same length.");
@@ -371,10 +402,10 @@ export class TALib {
         let up = h.subtract(h.lag(1));
         let down = l.lag(1).subtract(l);
 
-        return new Map([
-            ["pdm", up.greaterThan(down).and(up.greaterThan(0)).multiply(up).getValue()],
-            ["ndm", down.greaterThan(up).and(down.greaterThan(0)).multiply(down).getValue()]
-        ]);
+        return {
+            pdm: up.greaterThan(down).and(up.greaterThan(0)).multiply(up),
+            ndm: down.greaterThan(up).and(down.greaterThan(0)).multiply(down)
+        };
     }
 
 
@@ -388,16 +419,16 @@ export class TALib {
      * @param close
      * @param period
      */
-    public static di(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
+    public static di(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {pdi: Series, ndi: Series} {
         // @ts-ignore
         let atr = new Series(this.atr(high, low, close, period).get('atr'));
         let dm = this.dm(high, low);
-        return new Map([
-            ["pdi",  new Series(dm.get('pdm')).modifiedMovingAverage(period).divide(atr).multiply(100).getValue()],
-            ["ndi",  new Series(dm.get('ndm')).modifiedMovingAverage(period).divide(atr).multiply(100).getValue()]
-        ]);
+        return {
+            pdi: dm.pdm.modifiedMovingAverage(period).divide(atr).multiply(100),
+            ndi: dm.ndm.modifiedMovingAverage(period).divide(atr).multiply(100)
+        };
     }
-    public static diDefault = new Map([["period", 14]]);
+    public static diDefault = {period: 14};
 
 
     /**
@@ -410,14 +441,12 @@ export class TALib {
      * @param close
      * @param period
      */
-    public static dx(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): Map<string, (number | null)[]> {
+    public static dx(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {dx:Series} {
         // @ts-ignore
         let di = this.di(high, low, close, period);
-        let pdi = new Series(di.get('pdi'));
-        let ndi = new Series(di.get('ndi'));
-        return new Map([["dx", pdi.subtract(ndi).divide(pdi.add(ndi)).multiply(100).getValue()]]);
+        return {dx: di.pdi.subtract(di.ndi).divide(di.pdi.add(di.ndi)).multiply(100)}
     }
-    public static dxDefault = new Map([["period", 14]]);
+    public static dxDefault = {period: 14};
 
 
 
@@ -427,18 +456,18 @@ export class TALib {
      * @param value
      * @param period
      */
-    public static movingMax(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+    public static movingMax(value: (number | null)[] | undefined, period:number): {movingMax: Series} {
         if(value==undefined) throw Error("Value is missing.");
-        return new Map([["movingMax", new Series(value).movingMax(period).getValue()]]);
+        return {movingMax: new Series(value).movingMax(period)};
     }
     /**
      * Index of highest value over a specified period
      * @param value
      * @param period
      */
-    public static movingMaxIndex(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+    public static movingMaxIndex(value: (number | null)[] | undefined, period:number): {movingMaxIndex: Series} {
         if(value==undefined) throw Error("Value is missing.");
-        return new Map([["movingMaxIndex", new Series(value).movingMaxIndex(period).getValue()]]);
+        return {movingMaxIndex: new Series(value).movingMaxIndex(period)};
     }
 
 
@@ -447,9 +476,9 @@ export class TALib {
      * @param value
      * @param period
      */
-    public static movingMin(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+    public static movingMin(value: (number | null)[] | undefined, period:number): {movingMin: Series} {
         if(value==undefined) throw Error("Value is missing.");
-        return new Map([["movingMin", new Series(value).movingMin(period).getValue()]]);
+        return {movingMin: new Series(value).movingMin(period)};
     }
 
 
@@ -458,9 +487,9 @@ export class TALib {
      * @param value
      * @param period
      */
-    public static movingMinIndex(value: (number | null)[] | undefined, period:number): Map<string, (number | null)[]> {
+    public static movingMinIndex(value: (number | null)[] | undefined, period:number): {movingMinIndex: Series} {
         if(value==undefined) throw Error("Value is missing.");
-        return new Map([["movingMinIndex", new Series(value).movingMinIndex(period).getValue()]]);
+        return {movingMinIndex: new Series(value).movingMinIndex(period)};
     }
 
 }
