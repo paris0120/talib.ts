@@ -187,16 +187,6 @@ export class TALib {
         if (close == undefined) throw Error("Missing close.");
         if (high.length != low.length) throw Error("High and low must have the same length.");
         if (high.length != close.length) throw Error("High and close must have the same length.");
-
-
-
-        let avgPrice: (number | null)[] = [];
-        for(let i = 0; i<open.length; i++) {
-            if(high[i]==null || low[i]==null || close[i]==null) avgPrice.push(null);
-            else { // @ts-ignore
-                avgPrice.push((high[i] + low[i] + close[i])/3);
-            }
-        }
         return {typPrice: new Series(high).add(new Series(low)).add(new Series(close)).divide(3)};
 
     }
@@ -297,7 +287,7 @@ export class TALib {
         let l = new Series(low);
         let c = new Series(close);
         let v = new Series(volume);
-        return {ad: v.multiply(c.subtract(l).subtract(h.add(c))).divide(h.subtract(l)).carry()};
+        return {ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillNull(0)).carry()};
     }
 
 
@@ -420,8 +410,7 @@ export class TALib {
      * @param period
      */
     public static di(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {pdi: Series, ndi: Series} {
-        // @ts-ignore
-        let atr = new Series(this.atr(high, low, close, period).get('atr'));
+        let atr =this.tRange(high, low, close).tRange.modifiedMovingAverage(period);
         let dm = this.dm(high, low);
         return {
             pdi: dm.pdm.modifiedMovingAverage(period).divide(atr).multiply(100),
@@ -442,14 +431,10 @@ export class TALib {
      * @param period
      */
     public static dx(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {dx:Series} {
-        // @ts-ignore
         let di = this.di(high, low, close, period);
         return {dx: di.pdi.subtract(di.ndi).divide(di.pdi.add(di.ndi)).multiply(100)}
     }
     public static dxDefault = {period: 14};
-
-
-
 
     /**
      * Highest value over a specified period

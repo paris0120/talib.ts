@@ -189,14 +189,6 @@ class TALib {
             throw Error("High and low must have the same length.");
         if (high.length != close.length)
             throw Error("High and close must have the same length.");
-        let avgPrice = [];
-        for (let i = 0; i < open.length; i++) {
-            if (high[i] == null || low[i] == null || close[i] == null)
-                avgPrice.push(null);
-            else { // @ts-ignore
-                avgPrice.push((high[i] + low[i] + close[i]) / 3);
-            }
-        }
         return { typPrice: new numbers_ts_1.Series(high).add(new numbers_ts_1.Series(low)).add(new numbers_ts_1.Series(close)).divide(3) };
     }
     /**
@@ -297,7 +289,7 @@ class TALib {
         let l = new numbers_ts_1.Series(low);
         let c = new numbers_ts_1.Series(close);
         let v = new numbers_ts_1.Series(volume);
-        return { ad: v.multiply(c.subtract(l).subtract(h.add(c))).divide(h.subtract(l)).carry() };
+        return { ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillNull(0)).carry() };
     }
     /**
      * Chaikin A/D Oscillator
@@ -404,8 +396,7 @@ class TALib {
      * @param period
      */
     static di(high, low, close, period) {
-        // @ts-ignore
-        let atr = new numbers_ts_1.Series(this.atr(high, low, close, period).get('atr'));
+        let atr = this.tRange(high, low, close).tRange.modifiedMovingAverage(period);
         let dm = this.dm(high, low);
         return {
             pdi: dm.pdm.modifiedMovingAverage(period).divide(atr).multiply(100),
@@ -423,7 +414,6 @@ class TALib {
      * @param period
      */
     static dx(high, low, close, period) {
-        // @ts-ignore
         let di = this.di(high, low, close, period);
         return { dx: di.pdi.subtract(di.ndi).divide(di.pdi.add(di.ndi)).multiply(100) };
     }
