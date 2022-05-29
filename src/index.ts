@@ -157,7 +157,7 @@ export class TALib {
         period: 5,
         bandWidth: 2,
     }
-    public static bbands(close: (number | null)[] | undefined, period: number, bandWidth: number): { bbandsUpper: Series; bbandsSma: Series; bbandsLower: Series } {
+    public static bbands(close: (number | null)[] | undefined, period: number, bandWidth: number): {bbandsLower: Series; bbandsSma: Series;   bbandsUpper: Series;} {
         if (close == undefined) throw Error("Missing close.");
         if (period <= 0) throw Error("Fast period must be a positive integer.");
         let c = new Series(close);
@@ -166,9 +166,9 @@ export class TALib {
         let upper = sma.add(dev);
         let lower = sma.subtract(dev);
         return {
-            bbandsUpper: upper,
-            bbandsSma: sma,
             bbandsLower: lower,
+            bbandsSma: sma,
+            bbandsUpper: upper,
         }
     }
 
