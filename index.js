@@ -166,9 +166,9 @@ class TALib {
         let upper = sma.add(dev);
         let lower = sma.subtract(dev);
         return {
-            bbandsUpper: upper,
-            bbandsSma: sma,
             bbandsLower: lower,
+            bbandsSma: sma,
+            bbandsUpper: upper,
         };
     }
     /**
@@ -289,7 +289,7 @@ class TALib {
         let l = new numbers_ts_1.Series(low);
         let c = new numbers_ts_1.Series(close);
         let v = new numbers_ts_1.Series(volume);
-        return { ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillNull(0)).carry() };
+        return { ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillNaN(0)).carry() };
     }
     /**
      * Chaikin A/D Oscillator

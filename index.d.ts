@@ -94,9 +94,9 @@ export declare class TALib {
         bandWidth: number;
     };
     static bbands(close: (number | null)[] | undefined, period: number, bandWidth: number): {
-        bbandsUpper: Series;
-        bbandsSma: Series;
         bbandsLower: Series;
+        bbandsSma: Series;
+        bbandsUpper: Series;
     };
     /**
      * Typical Price
