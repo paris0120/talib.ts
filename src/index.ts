@@ -263,7 +263,7 @@ export class TALib {
      * @param period
      */
     public static atr(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {atr: Series} {
-        return {atr: this.tRange(high, low, close).tRange.simpleMovingAverage(period)};
+        return {atr: this.tRange(high, low, close).tRange.modifiedMovingAverage(period)};
     }
     public static atrDefault = {"period": 14};
 
