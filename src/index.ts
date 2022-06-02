@@ -287,7 +287,7 @@ export class TALib {
         let l = new Series(low);
         let c = new Series(close);
         let v = new Series(volume);
-        return {ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillNaN(0)).carry()};
+        return {ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillError(0)).carry()};
     }
 
 

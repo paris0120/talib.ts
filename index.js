@@ -261,7 +261,7 @@ class TALib {
      * @param period
      */
     static atr(high, low, close, period) {
-        return { atr: this.tRange(high, low, close).tRange.simpleMovingAverage(period) };
+        return { atr: this.tRange(high, low, close).tRange.modifiedMovingAverage(period) };
     }
     /**
      * Chaikin A/D Line
@@ -289,7 +289,7 @@ class TALib {
         let l = new numbers_ts_1.Series(low);
         let c = new numbers_ts_1.Series(close);
         let v = new numbers_ts_1.Series(volume);
-        return { ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillNaN(0)).carry() };
+        return { ad: v.multiply(c.subtract(l).subtract(h.subtract(c)).divide(h.subtract(l)).fillError(0)).carry() };
     }
     /**
      * Chaikin A/D Oscillator
