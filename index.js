@@ -414,8 +414,11 @@ class TALib {
      * @param period
      */
     static dx(high, low, close, period) {
-        let di = this.di(high, low, close, period);
-        return { dx: di.pdi.subtract(di.ndi).divide(di.pdi.add(di.ndi)).multiply(100) };
+        //let di = this.di(high, low, close, period);
+        let dm = this.dm(high, low);
+        let pdi = dm.pdm.modifiedMovingAverage(period);
+        let ndi = dm.ndm.modifiedMovingAverage(period);
+        return { dx: pdi.subtract(ndi).divide(pdi.add(ndi)).multiply(100) };
     }
     /**
      * Highest value over a specified period

@@ -187,11 +187,11 @@ CDLUPSIDEGAP2CROWS  Upside Gap Two Crows
 
 CDLXSIDEGAP3METHODS Upside/Downside Gap Three Methods
 
-CMO                 Chande Momentum Oscillator
+CMO: Chande Momentum Oscillator
 
 CORREL              Pearson's Correlation Coefficient (r)
 
-DEMA                Double Exponential Moving Average
+DEMA: Double Exponential Moving Average
 
 DX: Directional Movement Index
 
@@ -229,7 +229,7 @@ MAXINDEX: Index of highest value over a specified period (renamed to MOVINGMAXIN
 
 MEDPRICE            Median Price
 
-MFI                 Money Flow Index
+MFI: Money Flow Index
 
 MIDPOINT            MidPoint over period
 
@@ -267,9 +267,9 @@ ROCR                Rate of change ratio: (price/prevPrice)
 
 ROCR100             Rate of change ratio 100 scale: (price/prevPrice)*100
 
-RSI                 Relative Strength Index
+RSI: Relative Strength Index
 
-SAR                 Parabolic SAR
+SAR: Parabolic SAR
 
 SAREXT              Parabolic SAR - Extended
 
@@ -281,7 +281,7 @@ STOCH               Stochastic
 
 STOCHF              Stochastic Fast
 
-STOCHRSI            Stochastic Relative Strength Index
+STOCHRSI: Stochastic Relative Strength Index
 
 SUM                 Summation
 

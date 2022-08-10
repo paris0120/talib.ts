@@ -1,13 +1,26 @@
 import {Series} from "numbers.ts";
 
+
 export class TALib {
+
+
+
     public static sma(value: (number | null)[] | undefined, period: number): {sma: Series} {
         return {sma: new Series(value).simpleMovingAverage(period)};
     }
 
     public static ema(value: (number | null)[] | undefined, period: number, smoothing: number): {ema: Series} {
-        return {ema: new Series(value).simpleMovingAverage(period)};
+        return {ema: new Series(value).exponentialMovingAverage(period, smoothing)};
     }
+
+
+    public static dema(value: (number | null)[] | undefined, period: number, smoothing: number): {dema: Series} {
+        let ema = new Series(value).exponentialMovingAverage(period, smoothing);
+        return {dema: ema.multiply(2).subtract(ema.exponentialMovingAverage(period, smoothing))};
+    }
+
+
+
 
     /**
      * Modified moving average
@@ -15,7 +28,7 @@ export class TALib {
      * @param period
      */
     public static mma(value: (number | null)[] | undefined, period: number): {mma: Series} {
-        return {mma: new Series(value).simpleMovingAverage(period)};
+        return {mma: new Series(value).modifiedMovingAverage(period)};
     }
 
 
@@ -26,6 +39,10 @@ export class TALib {
     public static wema(value: (number | null)[] | undefined, weight: (number | null)[] | undefined, period: number, smoothing: number):{wema: Series} {
         return {wema: new Series(value).weightedExponentialMovingAverage(new Series(weight), period, smoothing)};
     }
+
+
+
+
 
     public static distance(value1: (number | null)[] | undefined, value2: (number | null)[] | undefined | number):{distance: Series} {
         if(typeof value2 == 'number') return {distance: new Series(value1).distance(value2)};
@@ -174,6 +191,7 @@ export class TALib {
 
 
 
+
     /**
      * Typical Price
      * @param high
@@ -266,6 +284,38 @@ export class TALib {
         return {atr: this.tRange(high, low, close).tRange.modifiedMovingAverage(period)};
     }
     public static atrDefault = {"period": 14};
+
+
+    /**
+     * Money Flow Index
+     * @param high
+     * @param low
+     * @param close
+     * @param volume
+     * @param period
+     */
+    public static mfi(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, volume: (number | null)[] | undefined, period: number): {mfi: Series} {
+        let tp =  this.typPrice(high, low, close).typPrice;
+        let mf = tp.multiply(new Series(volume));
+        let diff = tp.subtract(tp.lag(1));
+        return {mfi: diff.greaterThan(0).multiply(mf).simpleMovingAverage(period).divide(diff.lessThan(0).multiply(mf).simpleMovingAverage(period)).subtract(1).power(-1).multiply(100).add(100)};
+    }
+    public static mfiDefault = {"period": 14};
+
+
+
+    /**
+     * Chande Momentum Oscillator
+     * @param close
+     * @param period
+     */
+    public static cmo(close: (number | null)[] | undefined, period: number): {cmo: Series} {
+        let diff = new Series(close).subtract(new Series(close).lag(1));
+        let up = diff.greaterThan(0).multiply(diff).simpleMovingAverage(period);
+        let down = diff.lessThan(0).multiply(diff).simpleMovingAverage(period);
+        return {cmo: up.add(down).divide(up.subtract(down)).multiply(100)};
+    }
+    public static cmoDefault = {"period": 14};
 
     /**
      * Chaikin A/D Line
@@ -431,10 +481,127 @@ export class TALib {
      * @param period
      */
     public static dx(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, period: number): {dx:Series} {
-        let di = this.di(high, low, close, period);
-        return {dx: di.pdi.subtract(di.ndi).divide(di.pdi.add(di.ndi)).multiply(100)}
+        //let di = this.di(high, low, close, period);
+        let dm = this.dm(high, low);
+        let pdi = dm.pdm.modifiedMovingAverage(period);
+        let ndi = dm.ndm.modifiedMovingAverage(period);
+        return {dx: pdi.subtract(ndi).divide(pdi.add(ndi)).multiply(100)}
     }
     public static dxDefault = {period: 14};
+
+
+    /**
+     * Relative Strength Index
+     * @param close
+     * @param period
+     */
+    public static rsi(close: (number | null)[] | undefined, period: number): {rsi: Series} {
+        let ret = new Series(close).divide(new Series(close)).subtract(1);
+        return {rsi: ret.greaterThan(0).multiply(ret).simpleMovingAverage(period).divide(ret.lessThan(0).multiply(ret).simpleMovingAverage(period)).subtract(1).power(-1).multiply(100).add(100)};
+    }
+
+    public static rsiDefault = {period: 14};
+
+    public static stochRsi(close: (number | null)[] | undefined, rsiPeriod: number, period: number): {stochRsi: Series} {
+        let rsi = this.rsi(close, rsiPeriod).rsi;
+        let min = rsi.movingMin(period);
+        return {stochRsi:rsi.subtract(min).divide(rsi.max(period).subtract(min))};
+    }
+
+    public static stochRsiDefault = {rsiPeriod: 14, period: 14};
+
+    /**
+     * Parabolic SAR
+     * @param high
+     * @param low
+     * @param af
+     * @param maxAf
+     */
+    public static sar(high: (number | null)[], low: (number | null)[], af: number, maxAf:number): {rpsar: Series, fpsar: Series} {
+        let rpsar = new Series([]);
+        let fpsar= new Series([]);
+        let f = af;
+        let r = true;
+        let ep = 0;
+        let sar: number | null = null;
+        let first: number | null = null;
+        for(let i = 0; i<high.length; i++) {
+            if(high[i]!=null && high[i]!=null) {
+                if(first == null) {
+                    first = i;
+                    rpsar.push(null);
+                    fpsar.push(null);
+                }
+                else if(sar==null) {
+                    if((high[first] as number) +(low[first] as number)>(high[i] as number)+(low[i] as number)) {
+                       r = false;
+                       ep = Math.min((low[first] as number), (low[i] as number));
+                       sar = Math.max((high[first] as number), (high[i] as number));
+                       rpsar.push(null);
+                       fpsar.push(sar);
+                    }
+                    else {
+                        r = true;
+                        ep = Math.max((high[first] as number), (high[i] as number));
+
+                        sar = Math.min((low[first] as number), (low[i] as number));
+                        fpsar.push(null);
+                        rpsar.push(sar);
+                    }
+                }
+                else {
+                    sar+= f*(ep - sar);
+                    if(r) {
+                        if(high[i] as number>ep) {
+                            f = Math.min(af+f, maxAf);
+                            ep = high[i] as number;
+                        }
+                        if((low[i] as number)<=sar) {
+                            r = false;
+                            sar = ep;
+                            ep = low[i] as number;
+                            fpsar.push(sar);
+                            rpsar.push(null);
+                            f = af;
+                        }
+                        else {
+                            rpsar.push(sar);
+                            fpsar.push(null);
+                        }
+                    }
+                    else {
+                        if((low[i] as number) < ep) {
+                            f = Math.min(af+f, maxAf);
+                            ep = low[i] as number;
+                        }
+                        if((high[i] as number)>=sar) {
+                            r = true;
+                            sar = ep;
+                            ep = high[i] as number;
+                            rpsar.push(sar);
+                            fpsar.push(null);
+                            f = af;
+                        }
+                        else {
+                            fpsar.push(sar);
+                            rpsar.push(null);
+                        }
+                    }
+                }
+
+            }
+            else {
+                rpsar.push(null);
+                fpsar.push(null);
+            }
+        }
+
+        return {rpsar: rpsar, fpsar: fpsar}
+
+    }
+    public static sarDefault = {af: 0.02, maxAf: 0.2};
+
+
 
     /**
      * Highest value over a specified period
@@ -445,6 +612,7 @@ export class TALib {
         if(value==undefined) throw Error("Value is missing.");
         return {movingMax: new Series(value).movingMax(period)};
     }
+
     /**
      * Index of highest value over a specified period
      * @param value
