@@ -6,6 +6,9 @@ export declare class TALib {
     static ema(value: (number | null)[] | undefined, period: number, smoothing: number): {
         ema: Series;
     };
+    static dema(value: (number | null)[] | undefined, period: number, smoothing: number): {
+        dema: Series;
+    };
     /**
      * Modified moving average
      * @param value
@@ -161,6 +164,31 @@ export declare class TALib {
         period: number;
     };
     /**
+     * Money Flow Index
+     * @param high
+     * @param low
+     * @param close
+     * @param volume
+     * @param period
+     */
+    static mfi(high: (number | null)[] | undefined, low: (number | null)[] | undefined, close: (number | null)[] | undefined, volume: (number | null)[] | undefined, period: number): {
+        mfi: Series;
+    };
+    static mfiDefault: {
+        period: number;
+    };
+    /**
+     * Chande Momentum Oscillator
+     * @param close
+     * @param period
+     */
+    static cmo(close: (number | null)[] | undefined, period: number): {
+        cmo: Series;
+    };
+    static cmoDefault: {
+        period: number;
+    };
+    /**
      * Chaikin A/D Line
      * @param high
      * @param low
@@ -284,6 +312,39 @@ export declare class TALib {
     };
     static dxDefault: {
         period: number;
+    };
+    /**
+     * Relative Strength Index
+     * @param close
+     * @param period
+     */
+    static rsi(close: (number | null)[] | undefined, period: number): {
+        rsi: Series;
+    };
+    static rsiDefault: {
+        period: number;
+    };
+    static stochRsi(close: (number | null)[] | undefined, rsiPeriod: number, period: number): {
+        stochRsi: Series;
+    };
+    static stochRsiDefault: {
+        rsiPeriod: number;
+        period: number;
+    };
+    /**
+     * Parabolic SAR
+     * @param high
+     * @param low
+     * @param af
+     * @param maxAf
+     */
+    static sar(high: (number | null)[], low: (number | null)[], af: number, maxAf: number): {
+        rpsar: Series;
+        fpsar: Series;
+    };
+    static sarDefault: {
+        af: number;
+        maxAf: number;
     };
     /**
      * Highest value over a specified period

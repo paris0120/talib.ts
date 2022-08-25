@@ -7,7 +7,11 @@ class TALib {
         return { sma: new numbers_ts_1.Series(value).simpleMovingAverage(period) };
     }
     static ema(value, period, smoothing) {
-        return { ema: new numbers_ts_1.Series(value).simpleMovingAverage(period) };
+        return { ema: new numbers_ts_1.Series(value).exponentialMovingAverage(period, smoothing) };
+    }
+    static dema(value, period, smoothing) {
+        let ema = new numbers_ts_1.Series(value).exponentialMovingAverage(period, smoothing);
+        return { dema: ema.multiply(2).subtract(ema.exponentialMovingAverage(period, smoothing)) };
     }
     /**
      * Modified moving average
@@ -15,7 +19,7 @@ class TALib {
      * @param period
      */
     static mma(value, period) {
-        return { mma: new numbers_ts_1.Series(value).simpleMovingAverage(period) };
+        return { mma: new numbers_ts_1.Series(value).modifiedMovingAverage(period) };
     }
     static wsma(value, weight, period) {
         return { mma: new numbers_ts_1.Series(value).weightedSimpleMovingAverage(new numbers_ts_1.Series(weight), period) };
@@ -264,6 +268,31 @@ class TALib {
         return { atr: this.tRange(high, low, close).tRange.modifiedMovingAverage(period) };
     }
     /**
+     * Money Flow Index
+     * @param high
+     * @param low
+     * @param close
+     * @param volume
+     * @param period
+     */
+    static mfi(high, low, close, volume, period) {
+        let tp = this.typPrice(high, low, close).typPrice;
+        let mf = tp.multiply(new numbers_ts_1.Series(volume));
+        let diff = tp.subtract(tp.lag(1));
+        return { mfi: diff.greaterThan(0).multiply(mf).simpleMovingAverage(period).divide(diff.lessThan(0).multiply(mf).simpleMovingAverage(period)).subtract(1).power(-1).multiply(100).add(100) };
+    }
+    /**
+     * Chande Momentum Oscillator
+     * @param close
+     * @param period
+     */
+    static cmo(close, period) {
+        let diff = new numbers_ts_1.Series(close).subtract(new numbers_ts_1.Series(close).lag(1));
+        let up = diff.greaterThan(0).multiply(diff).simpleMovingAverage(period);
+        let down = diff.lessThan(0).multiply(diff).simpleMovingAverage(period);
+        return { cmo: up.add(down).divide(up.subtract(down)).multiply(100) };
+    }
+    /**
      * Chaikin A/D Line
      * @param high
      * @param low
@@ -421,6 +450,105 @@ class TALib {
         return { dx: pdi.subtract(ndi).divide(pdi.add(ndi)).multiply(100) };
     }
     /**
+     * Relative Strength Index
+     * @param close
+     * @param period
+     */
+    static rsi(close, period) {
+        let ret = new numbers_ts_1.Series(close).divide(new numbers_ts_1.Series(close)).subtract(1);
+        return { rsi: ret.greaterThan(0).multiply(ret).simpleMovingAverage(period).divide(ret.lessThan(0).multiply(ret).simpleMovingAverage(period)).subtract(1).power(-1).multiply(100).add(100) };
+    }
+    static stochRsi(close, rsiPeriod, period) {
+        let rsi = this.rsi(close, rsiPeriod).rsi;
+        let min = rsi.movingMin(period);
+        return { stochRsi: rsi.subtract(min).divide(rsi.max(period).subtract(min)) };
+    }
+    /**
+     * Parabolic SAR
+     * @param high
+     * @param low
+     * @param af
+     * @param maxAf
+     */
+    static sar(high, low, af, maxAf) {
+        let rpsar = new numbers_ts_1.Series([]);
+        let fpsar = new numbers_ts_1.Series([]);
+        let f = af;
+        let r = true;
+        let ep = 0;
+        let sar = null;
+        let first = null;
+        for (let i = 0; i < high.length; i++) {
+            if (high[i] != null && high[i] != null) {
+                if (first == null) {
+                    first = i;
+                    rpsar.push(null);
+                    fpsar.push(null);
+                }
+                else if (sar == null) {
+                    if (high[first] + low[first] > high[i] + low[i]) {
+                        r = false;
+                        ep = Math.min(low[first], low[i]);
+                        sar = Math.max(high[first], high[i]);
+                        rpsar.push(null);
+                        fpsar.push(sar);
+                    }
+                    else {
+                        r = true;
+                        ep = Math.max(high[first], high[i]);
+                        sar = Math.min(low[first], low[i]);
+                        fpsar.push(null);
+                        rpsar.push(sar);
+                    }
+                }
+                else {
+                    sar += f * (ep - sar);
+                    if (r) {
+                        if (high[i] > ep) {
+                            f = Math.min(af + f, maxAf);
+                            ep = high[i];
+                        }
+                        if (low[i] <= sar) {
+                            r = false;
+                            sar = ep;
+                            ep = low[i];
+                            fpsar.push(sar);
+                            rpsar.push(null);
+                            f = af;
+                        }
+                        else {
+                            rpsar.push(sar);
+                            fpsar.push(null);
+                        }
+                    }
+                    else {
+                        if (low[i] < ep) {
+                            f = Math.min(af + f, maxAf);
+                            ep = low[i];
+                        }
+                        if (high[i] >= sar) {
+                            r = true;
+                            sar = ep;
+                            ep = high[i];
+                            rpsar.push(sar);
+                            fpsar.push(null);
+                            f = af;
+                        }
+                        else {
+                            fpsar.push(sar);
+                            rpsar.push(null);
+                        }
+                    }
+                }
+            }
+            else {
+                rpsar.push(null);
+                fpsar.push(null);
+            }
+        }
+        return { rpsar: rpsar, fpsar: fpsar };
+    }
+    /**
      * Highest value over a specified period
      * @param value
      * @param period
@@ -474,6 +602,8 @@ TALib.bbandsDefault = {
     bandWidth: 2,
 };
 TALib.atrDefault = { "period": 14 };
+TALib.mfiDefault = { "period": 14 };
+TALib.cmoDefault = { "period": 14 };
 TALib.adOscDefault = { fastPeriod: 3, slowPeriod: 10 };
 TALib.adxDefault = { period: 14 };
 TALib.adxrDefault = { lagPeriod: 10, adxPeriod: 14 };
@@ -482,3 +612,6 @@ TALib.aroonDefault = { period: 25 };
 TALib.aroonOscDefault = { period: 25 };
 TALib.diDefault = { period: 14 };
 TALib.dxDefault = { period: 14 };
+TALib.rsiDefault = { period: 14 };
+TALib.stochRsiDefault = { rsiPeriod: 14, period: 14 };
+TALib.sarDefault = { af: 0.02, maxAf: 0.2 };
